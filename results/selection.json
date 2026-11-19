@@ -1,0 +1,65 @@
+{
+  "seeds": [
+    17,
+    29,
+    43
+  ],
+  "rounds": 100,
+  "grid": [
+    {
+      "clients": 4,
+      "epochs": 1,
+      "mean_val_acc": 0.5621975963789606
+    },
+    {
+      "clients": 4,
+      "epochs": 3,
+      "mean_val_acc": 0.6545965350398002
+    },
+    {
+      "clients": 10,
+      "epochs": 1,
+      "mean_val_acc": 0.5772852609125435
+    },
+    {
+      "clients": 10,
+      "epochs": 3,
+      "mean_val_acc": 0.6704645960147756
+    }
+  ],
+  "selected": {
+    "clients": 10,
+    "epochs": 3,
+    "mean_val_acc": 0.6704645960147756
+  },
+  "noise_epochs": 3,
+  "noise_results": [
+    {
+      "noise": 0.0,
+      "mean_val_acc": 0.6704645960147756
+    },
+    {
+      "noise": 0.05,
+      "mean_val_acc": 0.6674990895374852
+    },
+    {
+      "noise": 0.1,
+      "mean_val_acc": 0.6587586493938921
+    },
+    {
+      "noise": 0.2,
+      "mean_val_acc": 0.6296758753446751
+    },
+    {
+      "noise": 0.5,
+      "mean_val_acc": 0.5359242495187556
+    },
+    {
+      "noise": 1.0,
+      "mean_val_acc": 0.3897299828312783
+    }
+  ],
+  "selected_noise": 0.1,
+  "noise_selection_rule": "largest positive b within 0.02 of mean clean validation accuracy",
+  "test_used_for_selection": false
+}

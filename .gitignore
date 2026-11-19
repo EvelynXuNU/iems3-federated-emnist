@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+.DS_Store
+Assignment3-data/
+data/
+results*/**/model.pt
+results*/**/confusion.npy
+tmp/
+*.zip
+.env*
+*.pem
+*.key
+mlds_assignment3.pdf

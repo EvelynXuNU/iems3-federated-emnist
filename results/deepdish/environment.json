@@ -1,0 +1,11 @@
+{
+  "host": "mlds-deepdish4",
+  "python": "3.10.12",
+  "torch": "2.6.0+cu124",
+  "ray": "2.60.0",
+  "numpy": "1.23.1",
+  "actor_cpus": 1,
+  "actor_gpus": 0,
+  "ray_cpus": 4,
+  "device": "cpu"
+}
