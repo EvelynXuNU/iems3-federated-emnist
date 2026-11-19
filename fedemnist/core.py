@@ -181,12 +181,16 @@ def run(root, destination, config, force=False):
     setup()
     destination = Path(destination) / config.name
     manifest = json.loads((Path(root) / "manifest.json").read_text())
-    if (destination / "summary.json").exists() and not force:
-        existing = json.loads((destination / "summary.json").read_text())
+    summary_path = destination / "summary.json"
+    if summary_path.exists() and not force:
+        existing = json.loads(summary_path.read_text())
         if existing["config"] != asdict(config) or existing["data_sha256"] != manifest["source_sha256"]:
             raise ValueError("Existing result does not match the configuration or data.")
-        return existing
+        if (destination / "model.pt").is_file() and (destination / "history.json").is_file():
+            return existing
     destination.mkdir(parents=True, exist_ok=True)
+    # A summary marks a completed run. Invalidate it before replacing partial artifacts.
+    summary_path.unlink(missing_ok=True)
     clients = [Client(root, i, config) for i in range(100)]
     state = weights(model(config.seed))
     generator = np.random.default_rng([config.seed, 909])
@@ -224,5 +228,5 @@ def run(root, destination, config, force=False):
                                "device": "cpu", "torch_threads": 1},
                "seconds": time.perf_counter() - started,
                "participation": participation.tolist(), **history[-1]}
-    save_json(destination / "summary.json", summary)
+    save_json(summary_path, summary)
     return summary

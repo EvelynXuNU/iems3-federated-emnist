@@ -307,8 +307,9 @@ def build():
       "python -m fedemnist.validate --ray<br/>python -m fedemnist.validate --shuffled<br/>"
       "python -m fedemnist.experiments suite<br/>python -m fedemnist.experiments test<br/>"
       "python -m fedemnist.plots<br/>python -m fedemnist.report", "CodeCustom")
-    p("The experiment suite reuses matching completed runs. An interrupted run is recomputed from round "
-      "zero. Use --output results_reproduced on validation and experiment commands to preserve the included "
+    p("The experiment suite reuses a matching completed run when its checkpoint and history are present. "
+      "A fresh clone retrains to recreate the excluded checkpoints before test evaluation. An interrupted "
+      "run is recomputed from round zero. Use --output results_reproduced on validation and experiment commands to preserve the included "
       "numerical records. The README explains how each experiment validates a predicted behavior.")
     p("The present scope uses one split, three training seeds, four (C,E) combinations, and a fixed "
       "learning rate. It samples optimization variability within this scope. The 100-round results do not "
@@ -339,10 +340,12 @@ def build():
         remote_environment = read(root / "deepdish/environment.json")
         remote_validation = read(root / "deepdish/validation.json")
         remote_error = max(row["max_parameter_error"] for row in remote_validation["ray_serial_equivalence"]["trace"])
-        p(f"The complete validation suite also passed on DeepDish 4 using Python {remote_environment['python']}, "
+        p(f"The checks invoked by <font face='Courier'>python -m fedemnist.validate --ray</font> "
+          f"also passed on DeepDish 4 using Python {remote_environment['python']}, "
           f"PyTorch {remote_environment['torch']}, Ray {remote_environment['ray']}, and NumPy {remote_environment['numpy']}. "
           f"It used four CPU actors, one CPU and zero GPUs per actor. The matched serial/Ray maximum parameter "
-          f"difference was {remote_error:.2e}. The main experiment results use the environment recorded above.")
+          f"difference was {remote_error:.2e}. The main experiments and the 100-round shuffled-label control "
+          f"used the local CPU environment recorded above.")
     p(f"The source training-file SHA-256 is<br/><font face='Courier' size='7.5'>{manifest['source_sha256']}</font>.")
     table([["Code entry point", "Responsibility"],
            ["fedemnist/prepare.py", "Preprocessing, local split and client file preparation"],

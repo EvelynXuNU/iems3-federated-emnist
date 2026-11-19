@@ -21,7 +21,7 @@ python -m fedemnist.plots
 python -m fedemnist.report
 ```
 
-The report is written to `output/pdf/assignment3_report.pdf`. Figure PNGs appear in `output/figures`. Numerical histories, validation records, selection decisions, and test results appear in `results`. Model checkpoints remain local and are excluded from Git. Completed runs are reused when their configuration and source-data hash match. An interrupted run starts again from round zero and replaces its partial history.
+The report is written to `output/pdf/assignment3_report.pdf`. Figure PNGs appear in `output/figures`. Numerical histories, validation records, selection decisions, and test results appear in `results`. Model checkpoints remain local and are excluded from Git. Completed runs are reused when their configuration and source-data hash match and their checkpoint and history files are present. On a fresh clone, the suite retrains the included numerical runs to create the missing local checkpoints before test evaluation. An interrupted run starts again from round zero and replaces its partial history.
 
 To rerun independently while preserving the included numerical results, use a different output directory for the computational stages. The report and plotting commands use the default `results` directory.
 
@@ -46,7 +46,7 @@ python -m fedemnist.experiments test --output results_reproduced
 
 Access was enabled using the official [MLDS setup utility](https://github.com/numlds/mlds-setup-releases). Campus Wi-Fi or the Northwestern VPN is required. The utility verified key-based SSH on all five DeepDish hosts.
 
-The full validation suite also passed on DeepDish 4 with four CPU actors, one CPU and zero GPUs per actor. Its isolated environment reused the server's PyTorch 2.6.0+cu124 and NumPy 1.23.1 and installed Ray 2.60.0 in a project virtual environment. It ran with Python 3.10.12. The CUDA-capable PyTorch build performed this verification on CPU. The exact environment and validation outputs are recorded in `results/deepdish/environment.json` and `results/deepdish/validation.json`.
+The checks and stress experiments invoked by `python -m fedemnist.validate --ray` also passed on DeepDish 4 with four CPU actors, one CPU and zero GPUs per actor. The 100-round shuffled-label control ran locally. The isolated remote environment reused the server's PyTorch 2.6.0+cu124 and NumPy 1.23.1 and installed Ray 2.60.0 in a project virtual environment. It ran with Python 3.10.12. The CUDA-capable PyTorch build performed this verification on CPU. The exact environment and validation outputs are recorded in `results/deepdish/environment.json` and `results/deepdish/validation.json`.
 
 The main 100-round experiments and test results were produced on the Mac's CPU with the pinned Python 3.13 environment. Remote validation independently checked the algorithm and actor behavior. To connect, use your NetID and an enabled host returned by the setup utility.
 
@@ -72,6 +72,8 @@ Run `python -m fedemnist.validate --ray` to execute the following checks and sav
 Run `python -m fedemnist.validate --shuffled` for a 100-round negative control. It permutes labels within each client's training set, preserves local label histograms, and keeps validation labels correct. Compare its validation accuracy with the matched clean `C=10%, E=3, seed=17` run. Learning should collapse toward an empirical frequency baseline. Uniform chance is 1/62, while label imbalance makes a majority-class baseline more appropriate.
 
 The non-standard figures expose client accuracy over time, actual actor execution overlap, and class-level recall changes under noise ranked by class frequency. These diagnose unequal benefits, real concurrency, and minority-class degradation that pooled accuracy can conceal.
+
+Run `python -m unittest discover -s tests` for the reproduction regression. It removes a checkpoint from a completed synthetic-data run to simulate a public clone, checks that retraining restores the same weights, checks reuse of a complete run, and checks that an interrupted replacement leaves no completion marker. This software regression complements the algorithm validation experiments above.
 
 ## Privacy interpretation
 
