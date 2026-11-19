@@ -128,6 +128,46 @@ def build():
       "would require secret randomness, a declared adjacency relation, label protection, and accounting for "
       "all released statistics. The noise-choice discussion derives the image-sensitivity implication.")
 
+    page("Validation evidence by assignment part")
+    p("This guide connects each assignment part to its edge cases, falsifiable predictions, measured "
+      "evidence and non-standard diagnostic. The following sections explain the experiments and their limits.")
+    ray_trace = validation["ray_serial_equivalence"]["trace"]
+    law = validation["noise_distribution"]
+    majority = int(train_counts.sum(axis=0).argmax())
+    majority_acc = val_counts[:, majority].sum() / val_counts.sum()
+    table([["Assignment part", "Edge case and handling", "Prediction and measured evidence", "Non-standard figure"],
+           ["Part 1.1: FedAvg",
+            "Unequal client sizes use sample-count weights. Locally missing classes retain all 62 output units. Client-level metrics expose uneven outcomes.",
+            f"Weighted oracle: expect 7, observe {validation['unequal_count_oracle']['value']:g} (an unweighted mean gives 5). "
+            f"Single-client SGD: error {validation['single_client_gradient_oracle']['max_parameter_error']:.2e} < 1e-6. "
+            f"Tiny-set capacity: {pct(validation['tiny_set_memorization']['trace'][-1]['accuracy'])} >= 98%. "
+            f"Destroying image-label association reduces validation to {pct(analysis['shuffled_validation_acc'])}; majority baseline {pct(majority_acc)}.",
+            "Figure 3: writer trajectories, final accuracy and selection frequency. Figure 9: capacity and restricted-participation stress."],
+           ["Part 1.2: Ray",
+            "Create only four selected actors per round, each with one CPU and zero GPUs. Cleanup runs even after failure; incomplete rounds abort. Crash injection is deferred.",
+            "Matched clients and randomness should reproduce serial FedAvg. "
+            f"Across three rounds, maximum weight error is {max(row['max_parameter_error'] for row in ray_trace):.2e} < 1e-6; "
+            f"each round uses four distinct workers. Peak simultaneous updates range from {min(row['peak_overlapping_updates'] for row in ray_trace)} "
+            f"to {max(row['peak_overlapping_updates'] for row in ray_trace)}, confirming overlap.",
+            "Figure 5: actual actor update intervals in rounds 1-3. Overlap checks execution concurrency alongside weight equivalence."],
+           ["Part 2: Laplace noise",
+            "At b=0 preserve inputs exactly. Keep perturbed pixels unbounded as specified; labels and evaluation inputs stay clean. Diagnose class-level degradation at large b.",
+            "Zero-noise input and update errors are exactly zero. "
+            f"At b=0.2, expect mean 0 and variance 0.08; observe {law['mean']:.6f} and {law['variance']:.6f} "
+            "(both within 0.005). "
+            f"At b=1, perturbed training accuracy is {pct(noise_rows[-1]['train_acc'])} but clean test accuracy is "
+            f"{pct(noise_rows[-1]['test_acc'])}, exposing poor transfer.",
+            "Figure 8: changes in per-class test recall, ordered by class frequency. Figure 7 gives the required final-accuracy tradeoff."]],
+          [58, 124, 220, 108])
+    p("<b>Reproduce the validation evidence</b> after data preparation and dependency installation:")
+    p("python -m fedemnist.validate --ray<br/>"
+      "python -m fedemnist.validate --shuffled", "CodeCustom")
+    p("The first command runs the aggregation and gradient oracles, zero-rate and zero-noise limits, noise-law "
+      "check, tiny-set capacity, restricted-participation stress and serial/Ray comparison. The second runs the "
+      "100-round shuffled-label control. Outputs are saved in results/validation.json and the shuffled run history. "
+      "Threshold checks pass; participation stress and class diagnostics are descriptive experiments. The full "
+      "reproduction sequence appears in the extended-validation section and README.", "SmallCustom")
+
     page("Data distribution and local splits")
     p(f"The course training archive contains {int(sizes.sum()):,} 28x28 images from 100 writers. Client sizes "
       f"range from {int(sizes.min())} to {int(sizes.max())}, with median {np.median(sizes):g}. "

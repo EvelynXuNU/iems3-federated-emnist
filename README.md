@@ -2,6 +2,12 @@
 
 Assignment 3 implementation for 100 clients and 62 classes. The model is a two-layer fully connected network, `784 -> 128 -> 62`, with ReLU. FedAvg and local SGD are implemented directly in PyTorch. Parallel training uses Ray Core Actors.
 
+## Submission
+
+Upload [`output/pdf/assignment3_report.pdf`](output/pdf/assignment3_report.pdf) to Canvas. The report includes the GitHub username, repository name and public repository link, required plots and discussion, run instructions, references, and a three-month extended validation plan. Page 2 maps each assignment part to its edge cases, predicted and measured validation results, non-standard figures, and rerun commands.
+
+All assignment source code, dependency files, recorded numerical results, and figures are included in this repository. Obtain the course dataset separately from Canvas as described below. The PDF is the Canvas deliverable; source code is submitted through the public repository link in the report.
+
 ## Run the experiments
 
 Python 3.13 was used on an Apple Silicon Mac. Training uses CPU, one PyTorch thread per process. Ray reserves four CPUs and zero GPUs. The exact installed environment is recorded in `requirements.lock`.
